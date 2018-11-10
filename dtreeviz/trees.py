@@ -105,6 +105,57 @@ class DTreeViz:
                 f.write(svg)
 
 
+def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
+             y_train: (pd.Series, np.ndarray),
+             max_depth,
+             feature_name: str,
+             target_name: str) -> tree.DecisionTreeRegressor:
+    if isinstance(x_train, pd.Series):
+        x_train = x_train.values
+    if isinstance(y_train,pd.Series):
+        y_train = y_train.values
+
+    y_range = (min(y_train), max(y_train))  # same y axis for all
+    overall_feature_range = (np.min(x_train), np.max(x_train))
+
+    t = tree.DecisionTreeRegressor(max_depth=max_depth)
+    t.fit(x_train.reshape(-1,1), y_train)
+
+    shadow_tree = ShadowDecTree(t, x_train.reshape(-1,1), y_train, feature_names=[feature_name])
+    splits = []
+    for node in shadow_tree.internal:
+        splits.append(node.split())
+    splits = sorted(splits)
+    bins = [overall_feature_range[0]] + splits + [overall_feature_range[1]]
+
+    means = []
+    for i in range(len(bins) - 1):
+        left = bins[i]
+        right = bins[i + 1]
+        inrange = y_train[(x_train >= left) & (x_train < right)]
+        means.append(np.mean(inrange))
+
+    plt.scatter(x_train, y_train, marker='o', alpha=.4, c='#4575b4')
+
+    for split in splits:
+        plt.plot([split, split], [*y_range], '--', color='grey', linewidth=.7)
+
+    prevX = overall_feature_range[0]
+    for i, m in enumerate(means):
+        split = overall_feature_range[1]
+        if i < len(splits):
+            split = splits[i]
+        plt.plot([prevX, split], [m, m], '-', color='#f46d43', linewidth=2)
+        prevX = split
+
+    # plt.text(3090, 40, f"Decision tree model, $R^2$={t.score(X_test,y_test):.3f}", fontsize=14)
+
+    plt.xlabel(feature_name)
+    plt.ylabel(target_name)
+
+    return t # return tree model
+
+
 def dtreeviz(tree_model: (tree.DecisionTreeRegressor, tree.DecisionTreeClassifier),
              X_train: (pd.DataFrame, np.ndarray),
              y_train: (pd.Series, np.ndarray),
