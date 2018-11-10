@@ -109,11 +109,19 @@ def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
              y_train: (pd.Series, np.ndarray),
              max_depth,
              feature_name: str,
-             target_name: str) -> tree.DecisionTreeRegressor:
+             target_name: str,
+             x_test: (pd.Series, np.ndarray) = None,  # 1 vector of X test data
+             y_test: (pd.Series, np.ndarray) = None,
+             fontsize: int = 14
+             ) -> tree.DecisionTreeRegressor:
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
     if isinstance(y_train,pd.Series):
         y_train = y_train.values
+    if isinstance(x_test, pd.Series):
+        x_test = x_test.values
+    if isinstance(y_test,pd.Series):
+        y_test = y_test.values
 
     y_range = (min(y_train), max(y_train))  # same y axis for all
     overall_feature_range = (np.min(x_train), np.max(x_train))
@@ -148,10 +156,14 @@ def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
         plt.plot([prevX, split], [m, m], '-', color='#f46d43', linewidth=2)
         prevX = split
 
-    # plt.text(3090, 40, f"Decision tree model, $R^2$={t.score(X_test,y_test):.3f}", fontsize=14)
+    if x_test is not None:
+        title = f"Regression tree depth {max_depth}, $R^2$={t.score(x_test.reshape(-1,1),y_test):.3f}"
+    else:
+        title = f"Regression tree depth {max_depth}"
+    plt.title(title, fontsize=fontsize)
 
-    plt.xlabel(feature_name)
-    plt.ylabel(target_name)
+    plt.xlabel(feature_name, fontsize=fontsize)
+    plt.ylabel(target_name, fontsize=fontsize)
 
     return t # return tree model
 
