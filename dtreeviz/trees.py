@@ -157,9 +157,9 @@ def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
         prevX = split
 
     if x_test is not None:
-        title = f"Regression tree depth {max_depth}, $R^2$={t.score(x_test.reshape(-1,1),y_test):.3f}"
+        title = f"Regression tree depth {max_depth}, testing $R^2$={t.score(x_test.reshape(-1,1),y_test):.3f}"
     else:
-        title = f"Regression tree depth {max_depth}"
+        title = f"Regression tree depth {max_depth}, training $R^2$={t.score(x_train.reshape(-1,1),y_train):.3f}"
     plt.title(title, fontsize=fontsize)
 
     plt.xlabel(feature_name, fontsize=fontsize)

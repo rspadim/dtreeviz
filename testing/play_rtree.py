@@ -15,7 +15,7 @@ t = rtreeviz(X_train.WGT, y_train,
              max_depth=max_depth,
              feature_name='Vehicle Weight',
              target_name='MPG',
-             x_test=X_test.WGT, y_test=y_test,
+             # x_test=X_test.WGT, y_test=y_test,
              fontsize=14)
 plt.savefig(f"/tmp/dectree-depth-{max_depth}.svg", bbox_inches=0, pad_inches=0)
 plt.show()
