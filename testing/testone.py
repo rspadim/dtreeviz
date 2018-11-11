@@ -129,11 +129,10 @@ def viz_digits(orientation="TD", max_depth=3, random_state=666, fancy=True, pick
     return viz
 
 
-viz = viz_boston(fancy=False, max_depth=100, orientation='TD')
-#st = viz_breast_cancer(fancy=True, orientation='TD')
+#viz = viz_boston(fancy=True, max_depth=4, orientation='TD')
 #viz = viz_iris(fancy=True, orientation='TD')
 #viz = viz_digits(fancy=True, max_depth=3, orientation='TD')
-#viz = viz_knowledge(fancy=True, orientation='TD', max_depth=4)
+viz = viz_knowledge(fancy=True, orientation='TD', max_depth=4)
 #g = graphviz.Source(st)
 
 # tmp = tempfile.gettempdir()

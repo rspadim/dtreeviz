@@ -33,15 +33,15 @@ NUM_BINS = [0, 0, 10, 9, 8, 6, 6, 6, 5, 5, 5]
 color_blind_friendly_colors = [
     None, # 0 classes
     None, # 1 class
-    ["#fefecd","#a1dab4"], # 2 classes
-    ["#fefecd","#D9E6F5",'#a1dab4'], # 3 classes
-    ["#fefecd","#D9E6F5",'#a1dab4','#fee090'], # 4
-    ["#fefecd","#D9E6F5",'#a1dab4','#41b6c4','#fee090'], # 5
-    ["#fefecd",'#c7e9b4','#41b6c4','#2c7fb8','#fee090','#f46d43'], # 6
-    ["#fefecd",'#c7e9b4','#7fcdbb','#41b6c4','#225ea8','#fdae61','#f46d43'], # 7
-    ["#fefecd",'#edf8b1','#c7e9b4','#7fcdbb','#1d91c0','#225ea8','#fdae61','#f46d43'], # 8
-    ["#fefecd",'#c7e9b4','#41b6c4','#74add1','#4575b4','#313695','#fee090','#fdae61','#f46d43'], # 9
-    ["#fefecd",'#c7e9b4','#41b6c4','#74add1','#4575b4','#313695','#fee090','#fdae61','#f46d43','#d73027'] # 10
+    ["#FEFEBB","#a1dab4"], # 2 classes
+    ["#FEFEBB","#D9E6F5",'#a1dab4'], # 3 classes
+    ["#FEFEBB","#D9E6F5",'#a1dab4','#fee090'], # 4
+    ["#FEFEBB","#D9E6F5",'#a1dab4','#41b6c4','#fee090'], # 5
+    ["#FEFEBB",'#c7e9b4','#41b6c4','#2c7fb8','#fee090','#f46d43'], # 6
+    ["#FEFEBB",'#c7e9b4','#7fcdbb','#41b6c4','#225ea8','#fdae61','#f46d43'], # 7
+    ["#FEFEBB",'#edf8b1','#c7e9b4','#7fcdbb','#1d91c0','#225ea8','#fdae61','#f46d43'], # 8
+    ["#FEFEBB",'#c7e9b4','#41b6c4','#74add1','#4575b4','#313695','#fee090','#fdae61','#f46d43'], # 9
+    ["#FEFEBB",'#c7e9b4','#41b6c4','#74add1','#4575b4','#313695','#fee090','#fdae61','#f46d43','#d73027'] # 10
 ]
 
 class DTreeViz:
