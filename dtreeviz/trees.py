@@ -258,6 +258,82 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
     return ct
 
 
+def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, class_names,
+                   fontsize=14
+                   ) -> tree.DecisionTreeClassifier:
+    """
+    Show tesselated 2D feature space for bivariate classification tree. X_train can
+    have lots of features but features lists indexes of 2 features to train tree with.
+    :param ax:
+    :type ax:
+    :param X_train:
+    :type X_train:
+    :param y_train:
+    :type y_train:
+    :param max_depth:
+    :type max_depth:
+    :param features:
+    :type features:
+    :param feature_names:
+    :type feature_names:
+    :param class_names:
+    :type class_names:
+    :param fontsize:
+    :type fontsize:
+    :return:
+    :rtype:
+    """
+    if isinstance(X_train,pd.DataFrame):
+        X_train = X_train.values
+    if isinstance(y_train, pd.Series):
+        y_train = y_train.values
+
+    X_train = X_train[:,features] # use just these features
+    ct = tree.DecisionTreeClassifier(max_depth=max_depth)
+    ct.fit(X_train, y_train)
+
+    shadow_tree = ShadowDecTree(ct, X_train, y_train,
+                                feature_names=feature_names, class_names=class_names)
+
+    tesselation = shadow_tree.tesselation()
+
+    n_classes = shadow_tree.nclasses()
+    overall_feature_range = (np.min(X_train), np.max(X_train))
+    class_values = shadow_tree.unique_target_values
+
+    color_values = color_blind_friendly_colors[n_classes]
+    colors = {v: color_values[i] for i, v in enumerate(class_values)}
+    X_colors = [colors[cl] for cl in class_values]
+
+    for node,bbox in tesselation:
+        #node,bbox = tess
+        x = bbox[0]
+        y = bbox[1]
+        w = bbox[2]-bbox[0]
+        h = bbox[3]-bbox[1]
+        rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.4,
+                                 edgecolor=GREY, facecolor=colors[node.prediction()])
+        ax.add_patch(rect)
+
+    dot_w = 25
+    X_hist = [X_train[y_train == cl] for cl in class_values]
+    for i, h in enumerate(X_hist):
+        ax.scatter(h[:,0], h[:,1], alpha=1, marker='o', s=dot_w, c=colors[i],
+                   edgecolors=GREY, lw=.3)
+
+    ax.set_xlabel(f"{feature_names[0]}", fontsize=fontsize, fontname="Arial", color=GREY)
+    ax.set_ylabel(f"{feature_names[1]}", fontsize=fontsize, fontname="Arial", color=GREY)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_linewidth(.3)
+
+    accur = ct.score(X_train, y_train)
+    title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
+    plt.title(title, fontsize=fontsize)
+
+    return None
+
+
 def dtreeviz(tree_model: (tree.DecisionTreeRegressor, tree.DecisionTreeClassifier),
              X_train: (pd.DataFrame, np.ndarray),
              y_train: (pd.Series, np.ndarray),
