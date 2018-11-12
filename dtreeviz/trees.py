@@ -105,16 +105,16 @@ class DTreeViz:
                 f.write(svg)
 
 
-def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
-             y_train: (pd.Series, np.ndarray),
-             max_depth,
-             feature_name: str,
-             target_name: str,
-             fontsize: int = 14
-             ) -> tree.DecisionTreeRegressor:
+def rtreeviz_univar(x_train: (pd.Series, np.ndarray),  # 1 vector of X data
+                    y_train: (pd.Series, np.ndarray),
+                    max_depth,
+                    feature_name: str,
+                    target_name: str,
+                    fontsize: int = 14
+                    ) -> tree.DecisionTreeRegressor:
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
-    if isinstance(y_train,pd.Series):
+    if isinstance(y_train, pd.Series):
         y_train = y_train.values
 
     y_range = (min(y_train), max(y_train))  # same y axis for all
