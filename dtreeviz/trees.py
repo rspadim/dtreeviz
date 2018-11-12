@@ -160,6 +160,56 @@ def rtreeviz_univar(x_train: (pd.Series, np.ndarray),  # 1 vector of X data
     return t # return tree model
 
 
+def rtreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, target_name,
+                   fontsize=14
+                   ) -> tree.DecisionTreeClassifier:
+    """
+    Show tesselated 2D feature space for bivariate classification tree. X_train can
+    have lots of features but features lists indexes of 2 features to train tree with.
+    """
+    if isinstance(X_train,pd.DataFrame):
+        X_train = X_train.values
+    if isinstance(y_train, pd.Series):
+        y_train = y_train.values
+
+    X_train = X_train[:,features] # use just these features
+    rt = tree.DecisionTreeRegressor(max_depth=max_depth)
+    rt.fit(X_train, y_train)
+
+    shadow_tree = ShadowDecTree(rt, X_train, y_train, feature_names=feature_names)
+
+    tesselation = shadow_tree.tesselation()
+
+    if False:
+        for node,bbox in tesselation:
+            #node,bbox = tess
+            x = bbox[0]
+            y = bbox[1]
+            w = bbox[2]-bbox[0]
+            h = bbox[3]-bbox[1]
+            rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.4,
+                                     edgecolor=GREY, facecolor='white')
+            ax.add_patch(rect)
+
+    dot_w = 25
+    x, y, z = X_train[:,0], X_train[:,1], y_train
+    plt.scatter(x, y, z, marker='o', alpha=.4, c='#4575b4',
+                edgecolor=GREY, lw=.3)
+
+    ax.set_xlabel(f"{feature_names[0]}", fontsize=fontsize, fontname="Arial", color=GREY)
+    ax.set_ylabel(f"{feature_names[1]}", fontsize=fontsize, fontname="Arial", color=GREY)
+    ax.set_zlabel(f"{target_name}", fontsize=fontsize, fontname="Arial", color=GREY)
+    # ax.spines['top'].set_visible(False)
+    # ax.spines['right'].set_visible(False)
+    # ax.spines['bottom'].set_linewidth(.3)
+
+    accur = rt.score(X_train, y_train)
+    title = f"Classifier tree depth {max_depth}, training $R^2$={accur:.3f}"
+    plt.title(title, fontsize=fontsize)
+
+    return None
+
+
 def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
                     fontsize=14, nbins=25, gtype='barstacked'
                     ) -> tree.DecisionTreeClassifier:
