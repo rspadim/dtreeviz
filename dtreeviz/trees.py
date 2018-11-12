@@ -143,7 +143,8 @@ def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
         inrange = y_train[(x_train >= left) & (x_train < right)]
         means.append(np.mean(inrange))
 
-    plt.scatter(x_train, y_train, marker='o', alpha=.4, c='#4575b4')
+    plt.scatter(x_train, y_train, marker='o', alpha=.4, c='#4575b4',
+                edgecolor=GREY, lw=.3)
 
     for split in splits:
         plt.plot([split, split], [*y_range], '--', color='grey', linewidth=.7)
@@ -166,6 +167,104 @@ def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
     plt.ylabel(target_name, fontsize=fontsize)
 
     return t # return tree model
+
+
+def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
+                    fontsize=14, nbins=25, gtype='barstacked'
+                    ) -> tree.DecisionTreeClassifier:
+    if isinstance(x_train, pd.Series):
+        x_train = x_train.values
+    if isinstance(y_train, pd.Series):
+        y_train = y_train.values
+
+    #    ax.set_facecolor('#F9F9F9')
+    ct = tree.DecisionTreeClassifier(max_depth=max_depth)
+    ct.fit(x_train.reshape(-1, 1), y_train)
+
+    shadow_tree = ShadowDecTree(ct, x_train.reshape(-1, 1), y_train,
+                                feature_names=[feature_name], class_names=class_names)
+
+    n_classes = shadow_tree.nclasses()
+    overall_feature_range = (np.min(x_train), np.max(x_train))
+    class_values = shadow_tree.unique_target_values
+
+    color_values = color_blind_friendly_colors[n_classes]
+    colors = {v: color_values[i] for i, v in enumerate(class_values)}
+    X_colors = [colors[cl] for cl in class_values]
+
+    ax.set_xlabel(f"{feature_name}", fontsize=fontsize, fontname="Arial",
+                  color=GREY)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    #     ax.spines['left'].set_linewidth(.3)
+    ax.yaxis.set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_linewidth(.3)
+
+    r = overall_feature_range[1] - overall_feature_range[0]
+
+    dot_w = 25
+
+    X_hist = [x_train[y_train == cl] for cl in class_values]
+    binwidth = r / nbins
+    if gtype == 'barstacked':
+        hist, bins, barcontainers = ax.hist(X_hist,
+                                            color=X_colors,
+                                            align='mid',
+                                            histtype='barstacked',
+                                            bins=np.arange(overall_feature_range[0],
+                                                           overall_feature_range[
+                                                               1] + binwidth, binwidth),
+                                            label=class_names)
+
+        for patch in barcontainers:
+            for rect in patch.patches:
+                rect.set_linewidth(.5)
+                rect.set_edgecolor(GREY)
+        ax.set_xlim(*overall_feature_range)
+        ax.set_xticks(overall_feature_range)
+        ax.set_yticks([0, max([max(h) for h in hist])])
+    elif gtype == 'strip':
+        # user should pass in short and wide fig
+        sigma = .02
+        mu = .5
+        class_step = .12
+        ax.set_ylim(0, mu + n_classes*class_step)
+        for i, h in enumerate(X_hist):
+            y_noise = np.random.normal(mu+i*class_step, sigma, size=len(h))
+            ax.scatter(h, y_noise, alpha=.7, marker='o', s=dot_w, c=colors[i],
+                       edgecolors=GREY, lw=.3)
+
+    ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY,
+                   labelsize=fontsize)
+
+    splits = []
+    for node in shadow_tree.internal:
+        splits.append(node.split())
+    splits = sorted(splits)
+    bins = [ax.get_xlim()[0]] + splits + [ax.get_xlim()[1]]
+
+    preds = []
+    for i in range(len(bins) - 1):
+        left = bins[i]
+        right = bins[i + 1]
+        inrange = y_train[(x_train >= left) & (x_train < right)]
+        values, counts = np.unique(inrange, return_counts=True)
+        pred = values[np.argmax(counts)]
+        rect = patches.Rectangle((left, 0.08), (right - left), .08, linewidth=.3,
+                                 edgecolor=GREY, facecolor=colors[pred])
+        ax.add_patch(rect)
+        #        plt.plot([left, right], [0.1,0.1], '-', color=colors[pred], linewidth=10) # [height, height]
+        preds.append(pred)
+
+    accur = ct.score(x_train.reshape(-1, 1), y_train)
+    title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
+    plt.title(title, fontsize=fontsize)
+
+    for split in splits:
+        plt.plot([split, split], [*ax.get_ylim()], '--', color='grey', linewidth=1)
+
+    return ct
 
 
 def dtreeviz(tree_model: (tree.DecisionTreeRegressor, tree.DecisionTreeClassifier),

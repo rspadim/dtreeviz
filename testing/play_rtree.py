@@ -10,7 +10,7 @@ y = df_cars['MPG']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 
-max_depth = 2
+max_depth = 4
 t = rtreeviz(X_train.WGT, y_train,
              max_depth=max_depth,
              feature_name='Vehicle Weight',
