@@ -110,18 +110,12 @@ def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
              max_depth,
              feature_name: str,
              target_name: str,
-             x_test: (pd.Series, np.ndarray) = None,  # 1 vector of X test data
-             y_test: (pd.Series, np.ndarray) = None,
              fontsize: int = 14
              ) -> tree.DecisionTreeRegressor:
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
     if isinstance(y_train,pd.Series):
         y_train = y_train.values
-    if isinstance(x_test, pd.Series):
-        x_test = x_test.values
-    if isinstance(y_test,pd.Series):
-        y_test = y_test.values
 
     y_range = (min(y_train), max(y_train))  # same y axis for all
     overall_feature_range = (np.min(x_train), np.max(x_train))
@@ -157,10 +151,7 @@ def rtreeviz(x_train: (pd.Series, np.ndarray), # 1 vector of X data
         plt.plot([prevX, split], [m, m], '-', color='#f46d43', linewidth=2)
         prevX = split
 
-    if x_test is not None:
-        title = f"Regression tree depth {max_depth}, testing $R^2$={t.score(x_test.reshape(-1,1),y_test):.3f}"
-    else:
-        title = f"Regression tree depth {max_depth}, training $R^2$={t.score(x_train.reshape(-1,1),y_train):.3f}"
+    title = f"Regression tree depth {max_depth}, training $R^2$={t.score(x_train.reshape(-1,1),y_train):.3f}"
     plt.title(title, fontsize=fontsize)
 
     plt.xlabel(feature_name, fontsize=fontsize)
@@ -227,7 +218,7 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
     elif gtype == 'strip':
         # user should pass in short and wide fig
         sigma = .02
-        mu = .5
+        mu = .2
         class_step = .12
         ax.set_ylim(0, mu + n_classes*class_step)
         for i, h in enumerate(X_hist):
@@ -251,7 +242,7 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
         inrange = y_train[(x_train >= left) & (x_train < right)]
         values, counts = np.unique(inrange, return_counts=True)
         pred = values[np.argmax(counts)]
-        rect = patches.Rectangle((left, 0.08), (right - left), .08, linewidth=.3,
+        rect = patches.Rectangle((left, 0), (right - left), .08, linewidth=.3,
                                  edgecolor=GREY, facecolor=colors[pred])
         ax.add_patch(rect)
         #        plt.plot([left, right], [0.1,0.1], '-', color=colors[pred], linewidth=10) # [height, height]
