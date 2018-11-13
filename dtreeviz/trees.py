@@ -194,7 +194,7 @@ def rtreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, tar
             h = bbox[3]-bbox[1]
             pred = node.prediction()
             color = color_map[int(((pred - y_lim[0]) / y_range) * 99)]
-            rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.4,
+            rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.25,
                                      edgecolor=GREY, facecolor=color)
             ax.add_patch(rect)
 
