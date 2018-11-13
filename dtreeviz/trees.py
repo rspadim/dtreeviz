@@ -152,6 +152,8 @@ def rtreeviz_univar(x_train: (pd.Series, np.ndarray),  # 1 vector of X data
         plt.plot([prevX, split], [m, m], '-', color='#f46d43', linewidth=2)
         prevX = split
 
+    plt.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=fontsize)
+
     title = f"Regression tree depth {max_depth}, training $R^2$={t.score(x_train.reshape(-1,1),y_train):.3f}"
     plt.title(title, fontsize=fontsize)
 
@@ -161,8 +163,8 @@ def rtreeviz_univar(x_train: (pd.Series, np.ndarray),  # 1 vector of X data
     return t # return tree model
 
 
-def rtreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, target_name,
-                   fontsize=14
+def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_names, target_name,
+                   fontsize=14, ticks_fontsize=12
                    ) -> tree.DecisionTreeClassifier:
     """
     Show tesselated 2D feature space for bivariate classification tree. X_train can
@@ -211,8 +213,68 @@ def rtreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, tar
     # ax.spines['right'].set_visible(False)
     # ax.spines['bottom'].set_linewidth(.3)
 
+    ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=ticks_fontsize)
+
     accur = rt.score(X_train, y_train)
-    title = f"Classifier tree depth {max_depth}, training $R^2$={accur:.3f}"
+    title = f"Regression tree depth {max_depth}, training $R^2$={accur:.3f}"
+    plt.title(title, fontsize=fontsize)
+
+    return None
+
+
+def rtreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, target_name,
+                   fontsize=14, ticks_fontsize=10
+                   ) -> tree.DecisionTreeClassifier:
+    """
+    Show 3D feature space for bivariate regression tree. X_train can
+    have lots of features but features lists indexes of 2 features to train tree with.
+    """
+    if isinstance(X_train,pd.DataFrame):
+        X_train = X_train.values
+    if isinstance(y_train, pd.Series):
+        y_train = y_train.values
+
+    n_colors_in_map = 100
+
+    def plane(node, bbox):
+        x = np.linspace(bbox[0], bbox[2], 2)
+        y = np.linspace(bbox[1], bbox[3], 2)
+        xx, yy = np.meshgrid(x, y)
+        z = np.full(xx.shape, node.prediction())
+        # print(f"{node.prediction()}->{int(((node.prediction()-y_lim[0])/y_range)*(n_colors_in_map-1))}, lim {y_lim}")
+        # print(f"{color_map[int(((node.prediction()-y_lim[0])/y_range)*(n_colors_in_map-1))]}")
+        ax.plot_surface(xx, yy, z, alpha=.85, shade=False,
+                        color=color_map[int(((node.prediction()-y_lim[0])/y_range)*(n_colors_in_map-1))],
+                        edgecolor=GREY, lw=.3)
+        # ax.plot_wireframe(x, y, z)
+        #ax.plot3D(x, y, z)
+
+    X_train = X_train[:,features] # use just these features
+    rt = tree.DecisionTreeRegressor(max_depth=max_depth)
+    rt.fit(X_train, y_train)
+
+    y_lim = np.min(y_train), np.max(y_train)
+    y_range = y_lim[1] - y_lim[0]
+    color_map = list(str(c) for c in Color("#c7e9b4").range_to(Color("#081d58"), n_colors_in_map))
+    colors = [color_map[int(((y-y_lim[0])/y_range)*(n_colors_in_map-1))] for y in y_train]
+
+    shadow_tree = ShadowDecTree(rt, X_train, y_train, feature_names=feature_names)
+    tesselation = shadow_tree.tesselation()
+
+    for node, bbox in tesselation:
+        plane(node, bbox)
+
+    x, y, z = X_train[:, 0], X_train[:, 1], y_train
+    ax.scatter(x, y, z, marker='o', alpha=.7, edgecolor=GREY, lw=.3, c=colors)#, c='#4575b4')
+
+    ax.set_xlabel(f"{feature_names[0]}", fontsize=fontsize, fontname="Arial", color=GREY)
+    ax.set_ylabel(f"{feature_names[1]}", fontsize=fontsize, fontname="Arial", color=GREY)
+    ax.set_zlabel(f"{target_name}", fontsize=fontsize, fontname="Arial", color=GREY)
+
+    ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=ticks_fontsize)
+
+    accur = rt.score(X_train, y_train)
+    title = f"Regression tree depth {max_depth}, training $R^2$={accur:.3f}"
     plt.title(title, fontsize=fontsize)
 
     return None

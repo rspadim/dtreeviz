@@ -9,10 +9,10 @@ df_cars = pd.read_csv("data/cars.csv")
 X = df_cars.drop('MPG', axis=1)
 y = df_cars['MPG']
 
-max_depth = 3
+max_depth = 4
 figsize = (6,5)
-fig, ax = plt.subplots(1, 1, figsize=figsize)
-#ax = fig.add_subplot(111, projection='3d')
+fig = plt.figure(figsize=figsize)
+ax = fig.add_subplot(111, projection='3d')
 t = rtreeviz_bivar(ax,
                    X,y,
                    max_depth=max_depth,
