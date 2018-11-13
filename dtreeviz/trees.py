@@ -188,14 +188,13 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
     tesselation = shadow_tree.tesselation()
 
     for node,bbox in tesselation:
-        #node,bbox = tess
+        pred = node.prediction()
+        color = color_map[int(((pred - y_lim[0]) / y_range) * 99)]
         x = bbox[0]
         y = bbox[1]
         w = bbox[2]-bbox[0]
         h = bbox[3]-bbox[1]
-        pred = node.prediction()
-        color = color_map[int(((pred - y_lim[0]) / y_range) * 99)]
-        rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.5,
+        rect = patches.Rectangle((x, y), w, h, 0, linewidth=.3, alpha=.5,
                                  edgecolor=GREY, facecolor=color)
         ax.add_patch(rect)
 
@@ -404,7 +403,7 @@ def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, cla
         y = bbox[1]
         w = bbox[2]-bbox[0]
         h = bbox[3]-bbox[1]
-        rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.4,
+        rect = patches.Rectangle((x, y), w, h, 0, linewidth=.3, alpha=.4,
                                  edgecolor=GREY, facecolor=colors[node.prediction()])
         ax.add_patch(rect)
 
