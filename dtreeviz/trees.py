@@ -106,13 +106,13 @@ class DTreeViz:
                 f.write(svg)
 
 
-def rtreeviz_univar(x_train: (pd.Series, np.ndarray),  # 1 vector of X data
+def rtreeviz_univar(ax,
+                    x_train: (pd.Series, np.ndarray),  # 1 vector of X data
                     y_train: (pd.Series, np.ndarray),
                     max_depth,
                     feature_name: str,
                     target_name: str,
-                    fontsize: int = 14
-                    ) -> tree.DecisionTreeRegressor:
+                    fontsize: int = 14):
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
     if isinstance(y_train, pd.Series):
@@ -138,29 +138,27 @@ def rtreeviz_univar(x_train: (pd.Series, np.ndarray),  # 1 vector of X data
         inrange = y_train[(x_train >= left) & (x_train < right)]
         means.append(np.mean(inrange))
 
-    plt.scatter(x_train, y_train, marker='o', alpha=.4, c='#4575b4',
+    ax.scatter(x_train, y_train, marker='o', alpha=.4, c='#4575b4',
                 edgecolor=GREY, lw=.3)
 
     for split in splits:
-        plt.plot([split, split], [*y_range], '--', color='grey', linewidth=.7)
+        ax.plot([split, split], [*y_range], '--', color='grey', linewidth=.7)
 
     prevX = overall_feature_range[0]
     for i, m in enumerate(means):
         split = overall_feature_range[1]
         if i < len(splits):
             split = splits[i]
-        plt.plot([prevX, split], [m, m], '-', color='#f46d43', linewidth=2)
+        ax.plot([prevX, split], [m, m], '-', color='#f46d43', linewidth=2)
         prevX = split
 
-    plt.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=fontsize)
+    ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=fontsize)
 
     title = f"Regression tree depth {max_depth}, training $R^2$={t.score(x_train.reshape(-1,1),y_train):.3f}"
     plt.title(title, fontsize=fontsize)
 
     plt.xlabel(feature_name, fontsize=fontsize)
     plt.ylabel(target_name, fontsize=fontsize)
-
-    return t # return tree model
 
 
 def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_names,
@@ -281,8 +279,7 @@ def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, 
 
 
 def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
-                    fontsize=14, nbins=25, gtype='barstacked'
-                    ) -> tree.DecisionTreeClassifier:
+                    fontsize=14, nbins=25, gtype='barstacked'):
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
     if isinstance(y_train, pd.Series):
@@ -375,33 +372,12 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
     for split in splits:
         plt.plot([split, split], [*ax.get_ylim()], '--', color='grey', linewidth=1)
 
-    return ct
-
 
 def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, class_names,
-                   fontsize=14
-                   ) -> tree.DecisionTreeClassifier:
+                   fontsize=14):
     """
     Show tesselated 2D feature space for bivariate classification tree. X_train can
     have lots of features but features lists indexes of 2 features to train tree with.
-    :param ax:
-    :type ax:
-    :param X_train:
-    :type X_train:
-    :param y_train:
-    :type y_train:
-    :param max_depth:
-    :type max_depth:
-    :param features:
-    :type features:
-    :param feature_names:
-    :type feature_names:
-    :param class_names:
-    :type class_names:
-    :param fontsize:
-    :type fontsize:
-    :return:
-    :rtype:
     """
     if isinstance(X_train,pd.DataFrame):
         X_train = X_train.values
@@ -418,15 +394,12 @@ def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, cla
     tesselation = shadow_tree.tesselation()
 
     n_classes = shadow_tree.nclasses()
-    overall_feature_range = (np.min(X_train), np.max(X_train))
     class_values = shadow_tree.unique_target_values
 
     color_values = color_blind_friendly_colors[n_classes]
     colors = {v: color_values[i] for i, v in enumerate(class_values)}
-    X_colors = [colors[cl] for cl in class_values]
 
     for node,bbox in tesselation:
-        #node,bbox = tess
         x = bbox[0]
         y = bbox[1]
         w = bbox[2]-bbox[0]
