@@ -222,9 +222,9 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
     return None
 
 
-def rtreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, target_name,
-                   fontsize=14, ticks_fontsize=10
-                   ) -> tree.DecisionTreeClassifier:
+def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, target_name,
+                      fontsize=14, ticks_fontsize=10
+                      ) -> tree.DecisionTreeClassifier:
     """
     Show 3D feature space for bivariate regression tree. X_train can
     have lots of features but features lists indexes of 2 features to train tree with.
