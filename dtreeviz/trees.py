@@ -155,7 +155,7 @@ def rtreeviz_univar(ax,
     ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=fontsize)
 
     title = f"Regression tree depth {max_depth}, training $R^2$={t.score(x_train.reshape(-1,1),y_train):.3f}"
-    plt.title(title, fontsize=fontsize)
+    plt.title(title, fontsize=fontsize, color=GREY)
 
     plt.xlabel(feature_name, fontsize=fontsize)
     plt.ylabel(target_name, fontsize=fontsize)
@@ -214,7 +214,7 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
 
     accur = rt.score(X_train, y_train)
     title = f"Regression tree depth {max_depth}, training $R^2$={accur:.3f}"
-    plt.title(title, fontsize=fontsize)
+    plt.title(title, fontsize=fontsize, color=GREY)
 
     return None
 
@@ -278,6 +278,7 @@ def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, 
 
 
 def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
+                    target_name,
                     fontsize=14, nbins=25, gtype='barstacked'):
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
@@ -351,6 +352,7 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
     splits = sorted(splits)
     bins = [ax.get_xlim()[0]] + splits + [ax.get_xlim()[1]]
 
+    pred_box_height = .07 * ax.get_ylim()[1]
     preds = []
     for i in range(len(bins) - 1):
         left = bins[i]
@@ -358,21 +360,24 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
         inrange = y_train[(x_train >= left) & (x_train < right)]
         values, counts = np.unique(inrange, return_counts=True)
         pred = values[np.argmax(counts)]
-        rect = patches.Rectangle((left, 0), (right - left), .08, linewidth=.3,
+        rect = patches.Rectangle((left, 0), (right - left), pred_box_height, linewidth=.3,
                                  edgecolor=GREY, facecolor=colors[pred])
         ax.add_patch(rect)
         #        plt.plot([left, right], [0.1,0.1], '-', color=colors[pred], linewidth=10) # [height, height]
         preds.append(pred)
 
+    add_classifier_legend(ax, class_names, class_values, colors, target_name)
+
     accur = ct.score(x_train.reshape(-1, 1), y_train)
     title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
-    plt.title(title, fontsize=fontsize)
+    plt.title(title, fontsize=fontsize, color=GREY)
 
     for split in splits:
         plt.plot([split, split], [*ax.get_ylim()], '--', color='grey', linewidth=1)
 
 
 def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, class_names,
+                   target_name,
                    fontsize=14):
     """
     Show tesselated 2D feature space for bivariate classification tree. X_train can
@@ -419,11 +424,38 @@ def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, cla
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_linewidth(.3)
 
+    add_classifier_legend(ax, class_names, class_values, colors, target_name)
+
     accur = ct.score(X_train, y_train)
     title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
-    plt.title(title, fontsize=fontsize)
+    plt.title(title, fontsize=fontsize, color=GREY)
 
     return None
+
+
+def add_classifier_legend(ax, class_names, class_values, colors, target_name):
+    # add boxes for legend
+    boxes = []
+    for i, c in enumerate(class_values):
+        box = patches.Rectangle((0, 0), 20, 10, linewidth=.4, edgecolor=GREY,
+                                facecolor=colors[c], label=class_names[c])
+        boxes.append(box)
+    leg = ax.legend(handles=boxes,
+                    frameon=True,
+                    shadow=False,
+                    fancybox=True,
+                    title=target_name,
+                    handletextpad=.35,
+                    borderpad=.8,
+                    bbox_to_anchor=(1.0, 1.0),
+                    edgecolor=GREY)
+    leg.get_frame().set_linewidth(.5)
+    leg.get_title().set_color(GREY)
+    leg.get_title().set_fontsize(10)
+    leg.get_title().set_fontweight('bold')
+    for text in leg.get_texts():
+        text.set_color(GREY)
+        text.set_fontsize(10)
 
 
 def dtreeviz(tree_model: (tree.DecisionTreeRegressor, tree.DecisionTreeClassifier),

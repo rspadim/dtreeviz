@@ -13,7 +13,10 @@ X_train = know.drop('UNS', axis=1)
 y_train = know['UNS']
 figsize = (6,5)
 fig, ax = plt.subplots(1, 1, figsize=figsize)
-ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth, features=[4,3], feature_names = ['PEG','LPR'], class_names=class_names)
+ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth, features=[4,3],
+               feature_names = ['PEG','LPR'],
+               class_names=class_names,
+               target_name='Knowledge')
 plt.tight_layout()
 plt.savefig(f"/tmp/knowlege-bivar-classtree-depth-{max_depth}.svg", bbox_inches=0, pad_inches=0)
 plt.show()
