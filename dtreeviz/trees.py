@@ -13,6 +13,7 @@ import matplotlib.patches as patches
 import tempfile
 from os import getpid, makedirs
 from sys import platform as PLATFORM
+from colour import Color
 
 YELLOW = "#fefecd" # "#fbfbd0" # "#FBFEB0"
 BLUE = "#D9E6F5"
@@ -176,29 +177,36 @@ def rtreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, tar
     rt = tree.DecisionTreeRegressor(max_depth=max_depth)
     rt.fit(X_train, y_train)
 
+    y_lim = np.min(y_train), np.max(y_train)
+    y_range = y_lim[1] - y_lim[0]
+    color_map = list(str(c) for c in Color("red").range_to(Color("green"), 100))
+
     shadow_tree = ShadowDecTree(rt, X_train, y_train, feature_names=feature_names)
 
     tesselation = shadow_tree.tesselation()
 
-    if False:
+    if True:
         for node,bbox in tesselation:
             #node,bbox = tess
             x = bbox[0]
             y = bbox[1]
             w = bbox[2]-bbox[0]
             h = bbox[3]-bbox[1]
+            pred = node.prediction()
+            color = color_map[int(((pred - y_lim[0]) / y_range) * 99)]
             rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.4,
-                                     edgecolor=GREY, facecolor='white')
+                                     edgecolor=GREY, facecolor=color)
             ax.add_patch(rect)
 
     dot_w = 25
+    # print( [int(((y-y_lim[0])/y_range)*100) for y in y_train] )
+    colors = [color_map[int(((y-y_lim[0])/y_range)*99)] for y in y_train]
     x, y, z = X_train[:,0], X_train[:,1], y_train
-    plt.scatter(x, y, z, marker='o', alpha=.4, c='#4575b4',
-                edgecolor=GREY, lw=.3)
+    ax.scatter(x, y, marker='o', alpha=.7, c=colors, edgecolor=GREY, lw=.3)
 
     ax.set_xlabel(f"{feature_names[0]}", fontsize=fontsize, fontname="Arial", color=GREY)
     ax.set_ylabel(f"{feature_names[1]}", fontsize=fontsize, fontname="Arial", color=GREY)
-    ax.set_zlabel(f"{target_name}", fontsize=fontsize, fontname="Arial", color=GREY)
+    # ax.set_zlabel(f"{target_name}", fontsize=fontsize, fontname="Arial", color=GREY)
     # ax.spines['top'].set_visible(False)
     # ax.spines['right'].set_visible(False)
     # ax.spines['bottom'].set_linewidth(.3)
