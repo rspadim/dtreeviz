@@ -163,11 +163,12 @@ def rtreeviz_univar(x_train: (pd.Series, np.ndarray),  # 1 vector of X data
     return t # return tree model
 
 
-def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_names, target_name,
-                   fontsize=14, ticks_fontsize=12
-                   ) -> tree.DecisionTreeClassifier:
+def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_names,
+                           target_name,
+                           fontsize=14, ticks_fontsize=12
+                           ) -> tree.DecisionTreeClassifier:
     """
-    Show tesselated 2D feature space for bivariate classification tree. X_train can
+    Show tesselated 2D feature space for bivariate regression tree. X_train can
     have lots of features but features lists indexes of 2 features to train tree with.
     """
     if isinstance(X_train,pd.DataFrame):
@@ -179,32 +180,31 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
     rt = tree.DecisionTreeRegressor(max_depth=max_depth)
     rt.fit(X_train, y_train)
 
+    n_colors_in_map = 100
     y_lim = np.min(y_train), np.max(y_train)
     y_range = y_lim[1] - y_lim[0]
-    color_map = list(str(c) for c in Color("red").range_to(Color("green"), 100))
+    color_map = list(str(c) for c in Color("#c7e9b4").range_to(Color("#081d58"), n_colors_in_map))
 
     shadow_tree = ShadowDecTree(rt, X_train, y_train, feature_names=feature_names)
 
     tesselation = shadow_tree.tesselation()
 
-    if True:
-        for node,bbox in tesselation:
-            #node,bbox = tess
-            x = bbox[0]
-            y = bbox[1]
-            w = bbox[2]-bbox[0]
-            h = bbox[3]-bbox[1]
-            pred = node.prediction()
-            color = color_map[int(((pred - y_lim[0]) / y_range) * 99)]
-            rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.25,
-                                     edgecolor=GREY, facecolor=color)
-            ax.add_patch(rect)
+    for node,bbox in tesselation:
+        #node,bbox = tess
+        x = bbox[0]
+        y = bbox[1]
+        w = bbox[2]-bbox[0]
+        h = bbox[3]-bbox[1]
+        pred = node.prediction()
+        color = color_map[int(((pred - y_lim[0]) / y_range) * 99)]
+        rect = patches.Rectangle((x, y), w, h, .08, linewidth=.3, alpha=.5,
+                                 edgecolor=GREY, facecolor=color)
+        ax.add_patch(rect)
 
-    dot_w = 25
     # print( [int(((y-y_lim[0])/y_range)*100) for y in y_train] )
-    colors = [color_map[int(((y-y_lim[0])/y_range)*99)] for y in y_train]
+    colors = [color_map[int(((y-y_lim[0])/y_range)*(n_colors_in_map-1))] for y in y_train]
     x, y, z = X_train[:,0], X_train[:,1], y_train
-    ax.scatter(x, y, marker='o', alpha=.7, c=colors, edgecolor=GREY, lw=.3)
+    ax.scatter(x, y, marker='o', alpha=.95, c=colors, edgecolor=GREY, lw=.3)
 
     ax.set_xlabel(f"{feature_names[0]}", fontsize=fontsize, fontname="Arial", color=GREY)
     ax.set_ylabel(f"{feature_names[1]}", fontsize=fontsize, fontname="Arial", color=GREY)
