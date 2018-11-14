@@ -57,20 +57,87 @@ def viz_wine(features, feature_names, max_depth):
 
         ctreeviz_univar(ax, x_train, y_train, max_depth=max_depth, feature_name=feature_names[0],
                         class_names=list(wine.target_names), gtype='strip', target_name='wine')
-        filename = f"/tmp/digits-{feature_names[0]}-featspace-depth-{max_depth}.svg"
+        filename = f"/tmp/wine-{feature_names[0]}-featspace-depth-{max_depth}.svg"
     else:
         figsize = (6, 5)
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth, features=features,
                        feature_names=feature_names, class_names=list(wine.target_names), target_name='wine')
-        filename = f"/tmp/digits-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
+        filename = f"/tmp/wine-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
 
     print(f"Create {filename}")
     plt.tight_layout()
     plt.savefig(filename, bbox_inches=0, pad_inches=0)
     plt.show()
 
+
+def viz_knowledge(features, feature_names, max_depth):
+    know = pd.read_csv("data/knowledge.csv")
+    class_names = ['very_low', 'Low', 'Middle', 'High']
+    know['UNS'] = know['UNS'].map({n: i for i, n in enumerate(class_names)})
+
+    X_train = know.drop('UNS', axis=1)
+    y_train = know['UNS']
+    if len(features)==1:
+        figsize = (6, 2)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        x_train = know.PEG
+
+        ctreeviz_univar(ax, x_train, y_train, max_depth=max_depth, feature_name=feature_names[0],
+                        class_names=class_names, gtype='strip', target_name='knowledge')
+        filename = f"/tmp/knowledge-{feature_names[0]}-featspace-depth-{max_depth}.svg"
+    else:
+        figsize = (6, 5)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth, features=features,
+                       feature_names=feature_names, class_names=class_names, target_name='knowledge')
+        filename = f"/tmp/knowledge-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
+
+    print(f"Create {filename}")
+    plt.tight_layout()
+    plt.savefig(filename, bbox_inches=0, pad_inches=0)
+    plt.show()
+
+
+def viz_diabetes(features, feature_names, max_depth):
+    diabetes = load_diabetes()
+
+    X_train = diabetes.data
+    y_train = diabetes.target
+    if len(features)==1:
+        figsize = (6, 2)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        x_train = diabetes.data[:, features[0]]
+
+        rtreeviz_univar(ax, x_train, y_train, max_depth=max_depth, feature_name=feature_names[0], target_name='diabetes')
+        filename = f"/tmp/diabetes-{feature_names[0]}-featspace-depth-{max_depth}.svg"
+    else:
+        figsize = (6, 5)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth=max_depth,
+                               features=features,
+                               feature_names=feature_names, target_name='diabetes')
+        filename = f"/tmp/diabetes-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
+
+    print(f"Create {filename}")
+    plt.tight_layout()
+    plt.savefig(filename, bbox_inches=0, pad_inches=0)
+    plt.show()
+
+
+viz_diabetes(features=[2],feature_names=['bmi'], max_depth=2)
+viz_diabetes(features=[2],feature_names=['bmi'], max_depth=5)
+viz_diabetes(features=[2,0],feature_names=['bmi','age'], max_depth=2)
+viz_diabetes(features=[2,0],feature_names=['bmi','age'], max_depth=5)
+
+viz_knowledge(features=[4],feature_names=['PEG'], max_depth=2)
+viz_knowledge(features=[4],feature_names=['PEG'], max_depth=3)
+viz_knowledge(features=[4,3],feature_names=['PEG','LPR'], max_depth=2)
+viz_knowledge(features=[4,3],feature_names=['PEG','LPR'], max_depth=3)
+
 viz_wine(features=[12],feature_names=['proline'], max_depth=2)
+viz_wine(features=[12],feature_names=['proline'], max_depth=3)
 viz_wine(features=[12,6],feature_names=['proline','flavanoids'], max_depth=2)
+viz_wine(features=[12,6],feature_names=['proline','flavanoids'], max_depth=3)
 viz_digits(features=[2*8+5], feature_names=['pixel[2,5]'], max_depth=20)
 viz_digits(features=[4*8+4,2*8+5], feature_names=['pixel[4,4]','pixel[2,5]'], max_depth=5)
