@@ -125,6 +125,37 @@ def viz_diabetes(features, feature_names, max_depth):
     plt.show()
 
 
+def viz_boston(features, feature_names, max_depth):
+    boston = load_boston()
+
+    X_train = boston.data
+    y_train = boston.target
+    if len(features)==1:
+        figsize = (6, 2)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        x_train = boston.data[:, features[0]]
+
+        rtreeviz_univar(ax, x_train, y_train, max_depth=max_depth, feature_name=feature_names[0], target_name='price')
+        filename = f"/tmp/boston-{feature_names[0]}-featspace-depth-{max_depth}.svg"
+    else:
+        figsize = (6, 5)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth=max_depth,
+                               features=features,
+                               feature_names=feature_names, target_name='price')
+        filename = f"/tmp/boston-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
+
+    print(f"Create {filename}")
+    plt.tight_layout()
+    plt.savefig(filename, bbox_inches=0, pad_inches=0)
+    plt.show()
+
+
+viz_boston(features=[5],feature_names=['RM'], max_depth=2)
+viz_boston(features=[5],feature_names=['RM'], max_depth=4)
+viz_boston(features=[5,12],feature_names=['RM','LSTAT'], max_depth=2)
+viz_boston(features=[5,12],feature_names=['RM','LSTAT'], max_depth=4)
+
 viz_diabetes(features=[2],feature_names=['bmi'], max_depth=2)
 viz_diabetes(features=[2],feature_names=['bmi'], max_depth=5)
 viz_diabetes(features=[2,0],feature_names=['bmi','age'], max_depth=2)
