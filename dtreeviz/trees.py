@@ -112,7 +112,8 @@ def rtreeviz_univar(ax,
                     max_depth,
                     feature_name: str,
                     target_name: str,
-                    fontsize: int = 14):
+                    fontsize: int = 14,
+                    show={'title'}):
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
     if isinstance(y_train, pd.Series):
@@ -154,8 +155,9 @@ def rtreeviz_univar(ax,
 
     ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=fontsize)
 
-    title = f"Regression tree depth {max_depth}, training $R^2$={t.score(x_train.reshape(-1,1),y_train):.3f}"
-    plt.title(title, fontsize=fontsize, color=GREY)
+    if 'title' in show:
+        title = f"Regression tree depth {max_depth}, training $R^2$={t.score(x_train.reshape(-1,1),y_train):.3f}"
+        plt.title(title, fontsize=fontsize, color=GREY)
 
     plt.xlabel(feature_name, fontsize=fontsize)
     plt.ylabel(target_name, fontsize=fontsize)
@@ -163,7 +165,8 @@ def rtreeviz_univar(ax,
 
 def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_names,
                            target_name,
-                           fontsize=14, ticks_fontsize=12
+                           fontsize=14, ticks_fontsize=12,
+                           show={'title'}
                            ) -> tree.DecisionTreeClassifier:
     """
     Show tesselated 2D feature space for bivariate regression tree. X_train can
@@ -212,15 +215,17 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
 
     ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=ticks_fontsize)
 
-    accur = rt.score(X_train, y_train)
-    title = f"Regression tree depth {max_depth}, training $R^2$={accur:.3f}"
-    plt.title(title, fontsize=fontsize, color=GREY)
+    if 'title' in show:
+        accur = rt.score(X_train, y_train)
+        title = f"Regression tree depth {max_depth}, training $R^2$={accur:.3f}"
+        plt.title(title, fontsize=fontsize, color=GREY)
 
     return None
 
 
 def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, target_name,
-                      fontsize=14, ticks_fontsize=10
+                      fontsize=14, ticks_fontsize=10,
+                      show={'title'}
                       ) -> tree.DecisionTreeClassifier:
     """
     Show 3D feature space for bivariate regression tree. X_train can
@@ -270,16 +275,18 @@ def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, 
 
     ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=ticks_fontsize)
 
-    accur = rt.score(X_train, y_train)
-    title = f"Regression tree depth {max_depth}, training $R^2$={accur:.3f}"
-    plt.title(title, fontsize=fontsize)
+    if 'title' in show:
+        accur = rt.score(X_train, y_train)
+        title = f"Regression tree depth {max_depth}, training $R^2$={accur:.3f}"
+        plt.title(title, fontsize=fontsize)
 
     return None
 
 
 def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
                     target_name,
-                    fontsize=14, nbins=25, gtype='barstacked'):
+                    fontsize=14, nbins=25, gtype='strip',
+                    show={'title','legend'}):
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
     if isinstance(y_train, pd.Series):
@@ -366,11 +373,13 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
         #        plt.plot([left, right], [0.1,0.1], '-', color=colors[pred], linewidth=10) # [height, height]
         preds.append(pred)
 
-    add_classifier_legend(ax, class_names, class_values, colors, target_name)
+    if 'legend' in show:
+        add_classifier_legend(ax, class_names, class_values, colors, target_name)
 
-    accur = ct.score(x_train.reshape(-1, 1), y_train)
-    title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
-    plt.title(title, fontsize=fontsize, color=GREY)
+    if 'title' in show:
+        accur = ct.score(x_train.reshape(-1, 1), y_train)
+        title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
+        plt.title(title, fontsize=fontsize, color=GREY)
 
     for split in splits:
         plt.plot([split, split], [*ax.get_ylim()], '--', color='grey', linewidth=1)
@@ -378,7 +387,8 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
 
 def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, class_names,
                    target_name,
-                   fontsize=14):
+                   fontsize=14,
+                   show={'title','legend'}):
     """
     Show tesselated 2D feature space for bivariate classification tree. X_train can
     have lots of features but features lists indexes of 2 features to train tree with.
@@ -424,11 +434,13 @@ def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, cla
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_linewidth(.3)
 
-    add_classifier_legend(ax, class_names, class_values, colors, target_name)
+    if 'legend' in show:
+        add_classifier_legend(ax, class_names, class_values, colors, target_name)
 
-    accur = ct.score(X_train, y_train)
-    title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
-    plt.title(title, fontsize=fontsize, color=GREY)
+    if 'title' in show:
+        accur = ct.score(X_train, y_train)
+        title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
+        plt.title(title, fontsize=fontsize, color=GREY)
 
     return None
 
