@@ -226,6 +226,7 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
 
 def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, target_name,
                       fontsize=14, ticks_fontsize=10,
+                      azim=0, elev=0, dist=7,
                       show={'title'}
                       ) -> tree.DecisionTreeClassifier:
     """
@@ -238,6 +239,9 @@ def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, 
         y_train = y_train.values
 
     n_colors_in_map = 100
+
+    ax.view_init(elev=elev, azim=azim)
+    ax.dist=dist
 
     def plane(node, bbox):
         x = np.linspace(bbox[0], bbox[2], 2)
