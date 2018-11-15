@@ -113,7 +113,7 @@ def rtreeviz_univar(ax,
                     feature_name: str,
                     target_name: str,
                     fontsize: int = 14,
-                    show={'title'}):
+                    show={'title','splits'}):
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
     if isinstance(y_train, pd.Series):
@@ -142,16 +142,17 @@ def rtreeviz_univar(ax,
     ax.scatter(x_train, y_train, marker='o', alpha=.4, c='#4575b4',
                 edgecolor=GREY, lw=.3)
 
-    for split in splits:
-        ax.plot([split, split], [*y_range], '--', color='grey', linewidth=.7)
+    if 'splits' in show:
+        for split in splits:
+            ax.plot([split, split], [*y_range], '--', color='grey', linewidth=.7)
 
-    prevX = overall_feature_range[0]
-    for i, m in enumerate(means):
-        split = overall_feature_range[1]
-        if i < len(splits):
-            split = splits[i]
-        ax.plot([prevX, split], [m, m], '-', color='#f46d43', linewidth=2)
-        prevX = split
+        prevX = overall_feature_range[0]
+        for i, m in enumerate(means):
+            split = overall_feature_range[1]
+            if i < len(splits):
+                split = splits[i]
+            ax.plot([prevX, split], [m, m], '-', color='#f46d43', linewidth=2)
+            prevX = split
 
     ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=fontsize)
 
@@ -286,7 +287,7 @@ def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, 
 def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
                     target_name,
                     fontsize=14, nbins=25, gtype='strip',
-                    show={'title','legend'}):
+                    show={'title','legend','splits'}):
     if isinstance(x_train, pd.Series):
         x_train = x_train.values
     if isinstance(y_train, pd.Series):
@@ -311,7 +312,6 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
                   color=GREY)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    #     ax.spines['left'].set_linewidth(.3)
     ax.yaxis.set_visible(False)
     ax.spines['left'].set_visible(False)
     ax.spines['bottom'].set_linewidth(.3)
@@ -370,7 +370,6 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
         rect = patches.Rectangle((left, 0), (right - left), pred_box_height, linewidth=.3,
                                  edgecolor=GREY, facecolor=colors[pred])
         ax.add_patch(rect)
-        #        plt.plot([left, right], [0.1,0.1], '-', color=colors[pred], linewidth=10) # [height, height]
         preds.append(pred)
 
     if 'legend' in show:
@@ -381,14 +380,15 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
         title = f"Classifier tree depth {max_depth}, training accuracy={accur*100:.2f}%"
         plt.title(title, fontsize=fontsize, color=GREY)
 
-    for split in splits:
-        plt.plot([split, split], [*ax.get_ylim()], '--', color='grey', linewidth=1)
+    if 'splits' in show:
+        for split in splits:
+            plt.plot([split, split], [*ax.get_ylim()], '--', color='grey', linewidth=1)
 
 
 def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, class_names,
                    target_name,
                    fontsize=14,
-                   show={'title','legend'}):
+                   show={'title','legend','splits'}):
     """
     Show tesselated 2D feature space for bivariate classification tree. X_train can
     have lots of features but features lists indexes of 2 features to train tree with.
@@ -413,14 +413,15 @@ def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, cla
     color_values = color_blind_friendly_colors[n_classes]
     colors = {v: color_values[i] for i, v in enumerate(class_values)}
 
-    for node,bbox in tesselation:
-        x = bbox[0]
-        y = bbox[1]
-        w = bbox[2]-bbox[0]
-        h = bbox[3]-bbox[1]
-        rect = patches.Rectangle((x, y), w, h, 0, linewidth=.3, alpha=.4,
-                                 edgecolor=GREY, facecolor=colors[node.prediction()])
-        ax.add_patch(rect)
+    if 'splits' in show:
+        for node,bbox in tesselation:
+            x = bbox[0]
+            y = bbox[1]
+            w = bbox[2]-bbox[0]
+            h = bbox[3]-bbox[1]
+            rect = patches.Rectangle((x, y), w, h, 0, linewidth=.3, alpha=.4,
+                                     edgecolor=GREY, facecolor=colors[node.prediction()])
+            ax.add_patch(rect)
 
     dot_w = 25
     X_hist = [X_train[y_train == cl] for cl in class_values]
