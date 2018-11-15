@@ -62,9 +62,6 @@ n_images = i
 
 plt.close()
 
-# for i in range(n_images):
-#     cairosvg.svg2png(url=f'/tmp/cars-frame-{i:02d}.svg', write_to=f'/tmp/cars-frame-{i:02d}.png', dpi=300)
-
 images = [PIL_Image.open(image) for image in [f'/tmp/cars-frame-{i:02d}.png' for i in range(n_images)]]
 images[0].save('/tmp/cars-animation.gif',
                save_all=True,
