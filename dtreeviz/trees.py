@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from dtreeviz.shadow import *
 from numbers import Number
 import matplotlib.patches as patches
+from mpl_toolkits.mplot3d import Axes3D
 import tempfile
 from os import getpid, makedirs
 from sys import platform as PLATFORM
