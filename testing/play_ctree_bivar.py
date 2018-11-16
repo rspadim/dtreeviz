@@ -9,11 +9,13 @@ class_names = ['very_low', 'Low', 'Middle', 'High']
 know['UNS'] = know['UNS'].map({n: i for i, n in enumerate(class_names)})
 
 max_depth=3
+features=[4,3]
 X_train = know.drop('UNS', axis=1)
 y_train = know['UNS']
+X_train = X_train.values[:, features]
 figsize = (6,5)
 fig, ax = plt.subplots(1, 1, figsize=figsize)
-ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth, features=[4,3],
+ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth,
                feature_names = ['PEG','LPR'],
                class_names=class_names,
                target_name='Knowledge')

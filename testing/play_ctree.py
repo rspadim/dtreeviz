@@ -13,7 +13,11 @@ x_train = know.PEG
 y_train = know['UNS']
 figsize = (6,2)
 fig, ax = plt.subplots(1, 1, figsize=figsize)
-ct = ctreeviz_univar(ax, x_train, y_train, max_depth=max_depth, feature_name = 'PEG', class_names=class_names, nbins=40, gtype='strip')
+ct = ctreeviz_univar(ax, x_train, y_train, max_depth=max_depth,
+                     feature_name = 'PEG', class_names=class_names,
+                     target_name='Knowledge',
+                     nbins=40, gtype='strip',
+                     show={'splits','title'})
 plt.tight_layout()
 plt.savefig(f"/tmp/knowlege-classtree-depth-{max_depth}.svg", bbox_inches=0, pad_inches=0)
 plt.show()

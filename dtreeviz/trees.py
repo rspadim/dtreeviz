@@ -165,8 +165,7 @@ def rtreeviz_univar(ax,
     plt.ylabel(target_name, fontsize=fontsize)
 
 
-def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_names,
-                           target_name,
+def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, feature_names,
                            fontsize=14, ticks_fontsize=12,
                            show={'title'}
                            ) -> tree.DecisionTreeClassifier:
@@ -179,7 +178,6 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
     if isinstance(y_train, pd.Series):
         y_train = y_train.values
 
-    X_train = X_train[:,features] # use just these features
     rt = tree.DecisionTreeRegressor(max_depth=max_depth)
     rt.fit(X_train, y_train)
 
@@ -194,7 +192,7 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
 
     for node,bbox in tesselation:
         pred = node.prediction()
-        color = color_map[int(((pred - y_lim[0]) / y_range) * 99)]
+        color = color_map[int(((pred - y_lim[0]) / y_range) * (n_colors_in_map-1))]
         x = bbox[0]
         y = bbox[1]
         w = bbox[2]-bbox[0]
@@ -203,17 +201,12 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
                                  edgecolor=GREY, facecolor=color)
         ax.add_patch(rect)
 
-    # print( [int(((y-y_lim[0])/y_range)*100) for y in y_train] )
     colors = [color_map[int(((y-y_lim[0])/y_range)*(n_colors_in_map-1))] for y in y_train]
     x, y, z = X_train[:,0], X_train[:,1], y_train
     ax.scatter(x, y, marker='o', alpha=.95, c=colors, edgecolor=GREY, lw=.3)
 
     ax.set_xlabel(f"{feature_names[0]}", fontsize=fontsize, fontname="Arial", color=GREY)
     ax.set_ylabel(f"{feature_names[1]}", fontsize=fontsize, fontname="Arial", color=GREY)
-    # ax.set_zlabel(f"{target_name}", fontsize=fontsize, fontname="Arial", color=GREY)
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
-    # ax.spines['bottom'].set_linewidth(.3)
 
     ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=ticks_fontsize)
 
@@ -225,7 +218,7 @@ def rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth, features, feature_na
     return None
 
 
-def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, target_name,
+def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, feature_names, target_name,
                       fontsize=14, ticks_fontsize=10,
                       azim=0, elev=0, dist=7,
                       show={'title'}
@@ -254,10 +247,7 @@ def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, features, feature_names, 
         ax.plot_surface(xx, yy, z, alpha=.85, shade=False,
                         color=color_map[int(((node.prediction()-y_lim[0])/y_range)*(n_colors_in_map-1))],
                         edgecolor=GREY, lw=.3)
-        # ax.plot_wireframe(x, y, z)
-        #ax.plot3D(x, y, z)
 
-    X_train = X_train[:,features] # use just these features
     rt = tree.DecisionTreeRegressor(max_depth=max_depth)
     rt.fit(X_train, y_train)
 
@@ -390,7 +380,7 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
             plt.plot([split, split], [*ax.get_ylim()], '--', color='grey', linewidth=1)
 
 
-def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, class_names,
+def ctreeviz_bivar(ax, X_train, y_train, max_depth, feature_names, class_names,
                    target_name,
                    fontsize=14,
                    show={'title','legend','splits'}):
@@ -403,7 +393,6 @@ def ctreeviz_bivar(ax, X_train, y_train, max_depth, features, feature_names, cla
     if isinstance(y_train, pd.Series):
         y_train = y_train.values
 
-    X_train = X_train[:,features] # use just these features
     ct = tree.DecisionTreeClassifier(max_depth=max_depth)
     ct.fit(X_train, y_train)
 
