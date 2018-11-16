@@ -26,7 +26,7 @@ def viz_digits(features, feature_names, max_depth):
     columns = [f'pixel[{i},{j}]' for i in range(8) for j in range(8)]
 
     fig, ax = plt.subplots(1, 1)
-    X_train = digits.data
+    X_train = digits.data[:,features]
     y_train = digits.target
     if len(features)==1:
         x_train = digits.data[:, features[0]]
@@ -35,7 +35,7 @@ def viz_digits(features, feature_names, max_depth):
                         class_names=[str(i) for i in range(10)], gtype='strip', target_name='digit')
         filename = f"/tmp/digits-{feature_names[0]}-featspace-depth-{max_depth}.svg"
     else:
-        ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth, features=features,
+        ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth,
                        feature_names=feature_names, class_names=[str(i) for i in range(10)], target_name='digit')
         filename = f"/tmp/digits-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
 
@@ -48,7 +48,7 @@ def viz_digits(features, feature_names, max_depth):
 def viz_wine(features, feature_names, max_depth):
     wine = load_wine()
 
-    X_train = wine.data
+    X_train = wine.data[:,features]
     y_train = wine.target
     if len(features)==1:
         figsize = (6, 2)
@@ -61,7 +61,7 @@ def viz_wine(features, feature_names, max_depth):
     else:
         figsize = (6, 5)
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth, features=features,
+        ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth,
                        feature_names=feature_names, class_names=list(wine.target_names), target_name='wine')
         filename = f"/tmp/wine-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
 
@@ -77,6 +77,7 @@ def viz_knowledge(features, feature_names, max_depth):
     know['UNS'] = know['UNS'].map({n: i for i, n in enumerate(class_names)})
 
     X_train = know.drop('UNS', axis=1)
+    X_train = X_train.values[:,features]
     y_train = know['UNS']
     if len(features)==1:
         figsize = (6, 2)
@@ -89,7 +90,7 @@ def viz_knowledge(features, feature_names, max_depth):
     else:
         figsize = (6, 5)
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth, features=features,
+        ctreeviz_bivar(ax, X_train, y_train, max_depth=max_depth,
                        feature_names=feature_names, class_names=class_names, target_name='knowledge')
         filename = f"/tmp/knowledge-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
 
@@ -103,6 +104,7 @@ def viz_diabetes(features, feature_names, max_depth):
     diabetes = load_diabetes()
 
     X_train = diabetes.data
+    X_train = X_train[:,features]
     y_train = diabetes.target
     if len(features)==1:
         figsize = (6, 2)
@@ -115,8 +117,7 @@ def viz_diabetes(features, feature_names, max_depth):
         figsize = (6, 5)
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth=max_depth,
-                               features=features,
-                               feature_names=feature_names, target_name='diabetes')
+                               feature_names=feature_names)
         filename = f"/tmp/diabetes-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
 
     print(f"Create {filename}")
@@ -129,6 +130,7 @@ def viz_boston(features, feature_names, max_depth):
     boston = load_boston()
 
     X_train = boston.data
+    X_train = X_train[:,features]
     y_train = boston.target
     if len(features)==1:
         figsize = (6, 2)
@@ -141,8 +143,7 @@ def viz_boston(features, feature_names, max_depth):
         figsize = (6, 5)
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         rtreeviz_bivar_heatmap(ax, X_train, y_train, max_depth=max_depth,
-                               features=features,
-                               feature_names=feature_names, target_name='price')
+                               feature_names=feature_names)
         filename = f"/tmp/boston-{','.join(feature_names)}-featspace-depth-{max_depth}.svg"
 
     print(f"Create {filename}")
