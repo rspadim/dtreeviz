@@ -336,13 +336,14 @@ def ctreeviz_univar(ax, x_train, y_train, max_depth, feature_name, class_names,
         ax.set_yticks([0, max([max(h) for h in hist])])
     elif gtype == 'strip':
         # user should pass in short and wide fig
-        sigma = .02
-        mu = .2
-        class_step = .12
+        sigma = .013
+        mu = .08
+        class_step = .08
+        dot_w = 20
         ax.set_ylim(0, mu + n_classes*class_step)
-        for i, h in enumerate(X_hist):
-            y_noise = np.random.normal(mu+i*class_step, sigma, size=len(h))
-            ax.scatter(h, y_noise, alpha=.7, marker='o', s=dot_w, c=colors[i],
+        for i, bucket in enumerate(X_hist):
+            y_noise = np.random.normal(mu+i*class_step, sigma, size=len(bucket))
+            ax.scatter(bucket, y_noise, alpha=.7, marker='o', s=dot_w, c=colors[i],
                        edgecolors=GREY, lw=.3)
 
     ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY,
@@ -476,7 +477,7 @@ def dtreeviz(tree_model: (tree.DecisionTreeRegressor, tree.DecisionTreeClassifie
              show_root_edge_labels: bool = True,
              show_node_labels: bool = False,
              fancy: bool = True,
-             histtype: ('bar', 'barstacked') = 'barstacked',
+             histtype: ('bar', 'barstacked', 'strip') = 'barstacked',
              highlight_path: List[int] = [],
              X: np.ndarray = None,
              max_X_features_LR: int = 10,
@@ -811,7 +812,7 @@ def class_split_viz(node: ShadowDecTreeNode,
                     ticks_fontsize: int = 8,
                     label_fontsize: int = 9,
                     precision=1,
-                    histtype: ('bar', 'barstacked') = 'barstacked',
+                    histtype: ('bar', 'barstacked', 'strip') = 'barstacked',
                     X : np.array = None,
                     highlight_node : bool = False
                     ):
@@ -830,6 +831,9 @@ def class_split_viz(node: ShadowDecTreeNode,
     nbins = get_num_bins(histtype, n_classes)
     overall_feature_range = (np.min(X_train[:, node.feature()]), np.max(X_train[:, node.feature()]))
 
+    overall_feature_range_wide = (overall_feature_range[0]-overall_feature_range[0]*.08,
+                                  overall_feature_range[1]+overall_feature_range[1]*.05)
+
     ax.set_xlabel(f"{feature_name}", fontsize=label_fontsize, fontname="Arial",
                   color=GREY)
     ax.spines['top'].set_visible(False)
@@ -843,19 +847,39 @@ def class_split_viz(node: ShadowDecTreeNode,
 
     class_values = node.shadow_tree.unique_target_values
     X_hist = [X_feature[y_train == cl] for cl in class_values]
-    X_colors = [colors[cl] for cl in class_values]
-    binwidth = r / nbins
 
-    hist, bins, barcontainers = ax.hist(X_hist,
-                                        color=X_colors,
-                                        align='mid',
-                                        histtype=histtype,
-                                        bins=np.arange(overall_feature_range[0],overall_feature_range[1] + binwidth, binwidth),
-                                        label=class_names)
+    if histtype=='strip':
+        ax.yaxis.set_visible(False)
+        ax.spines['left'].set_visible(False)
+        sigma = .013
+        mu = .05
+        class_step = .08
+        dot_w = 20
+        ax.set_ylim(0, mu + n_classes * class_step)
+        for i, bucket in enumerate(X_hist):
+            alpha = .6 if len(bucket) > 10 else 1
+            y_noise = np.random.normal(mu + i * class_step, sigma, size=len(bucket))
+            ax.scatter(bucket, y_noise, alpha=alpha, marker='o', s=dot_w, c=colors[i],
+                       edgecolors=GREY, lw=.3)
+    else:
+        X_colors = [colors[cl] for cl in class_values]
+        binwidth = r / nbins
 
-    ax.set_xlim(*overall_feature_range)
+        hist, bins, barcontainers = ax.hist(X_hist,
+                                            color=X_colors,
+                                            align='mid',
+                                            histtype=histtype,
+                                            bins=np.arange(overall_feature_range[0],overall_feature_range[1] + binwidth, binwidth),
+                                            label=class_names)
+        # Alter appearance of each bar
+        for patch in barcontainers:
+            for rect in patch.patches:
+                rect.set_linewidth(.5)
+                rect.set_edgecolor(GREY)
+        ax.set_yticks([0,max([max(h) for h in hist])])
+
+    ax.set_xlim(*overall_feature_range_wide)
     ax.set_xticks(overall_feature_range)
-    ax.set_yticks([0,max([max(h) for h in hist])])
     ax.tick_params(axis='both', which='major', width=.3, labelcolor=GREY, labelsize=ticks_fontsize)
 
     def wedge(ax,x,color):
@@ -880,13 +904,6 @@ def class_split_viz(node: ShadowDecTreeNode,
     wedge(ax, node.split(), color=WEDGE_COLOR)
     if highlight_node:
         wedge(ax, X[node.feature()], color=HIGHLIGHT_COLOR)
-
-
-    # Alter appearance of each bar
-    for patch in barcontainers:
-        for rect in patch.patches:
-            rect.set_linewidth(.5)
-            rect.set_edgecolor(GREY)
 
     if filename is not None:
         plt.savefig(filename, bbox_inches='tight', pad_inches=0)

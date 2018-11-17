@@ -31,6 +31,7 @@ def viz_iris(orientation="TD", max_depth=5, random_state=666, fancy=True):
     st = dtreeviz(clf, iris.data, iris.target, target_name='variety',
                   feature_names=data.columns, orientation=orientation,
                   class_names=["setosa", "versicolor", "virginica"],  # 0,1,2 targets
+                  histtype='strip',
                   fancy=fancy,
                   X=x)
 
@@ -71,6 +72,7 @@ def viz_knowledge(orientation="TD", max_depth=3, random_state=666, fancy=True):
                   feature_names=['PEG','LPR'], orientation=orientation,
                   class_names=target_names,
 #                   show_node_labels=True,
+                   histtype='strip',
                    fancy=fancy)
     return viz
 
@@ -130,9 +132,9 @@ def viz_digits(orientation="TD", max_depth=3, random_state=666, fancy=True, pick
 
 
 #viz = viz_boston(fancy=True, max_depth=4, orientation='TD')
-#viz = viz_iris(fancy=True, orientation='TD')
+# viz = viz_iris(fancy=True, orientation='TD')
 #viz = viz_digits(fancy=True, max_depth=3, orientation='TD')
-viz = viz_knowledge(fancy=True, orientation='TD', max_depth=3)
+viz = viz_knowledge(fancy=True, orientation='TD', max_depth=5)
 #g = graphviz.Source(st)
 
 # tmp = tempfile.gettempdir()
