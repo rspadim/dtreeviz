@@ -17,9 +17,9 @@ from sys import platform as PLATFORM
 from colour import Color
 
 YELLOW = "#fefecd" # "#fbfbd0" # "#FBFEB0"
-BLUE = "#D9E6F5"
 GREEN = "#cfe2d4"
 DARKBLUE = '#313695'
+BLUE = '#4575b4'
 DARKGREEN = '#006400'
 LIGHTORANGE = '#fee090'
 LIGHTBLUE = '#a6bddb'
@@ -140,7 +140,7 @@ def rtreeviz_univar(ax,
         inrange = y_train[(x_train >= left) & (x_train < right)]
         means.append(np.mean(inrange))
 
-    ax.scatter(x_train, y_train, marker='o', alpha=.4, c='#4575b4',
+    ax.scatter(x_train, y_train, marker='o', alpha=.4, c=BLUE,
                 edgecolor=GREY, lw=.3)
 
     if 'splits' in show:
@@ -263,7 +263,7 @@ def rtreeviz_bivar_3D(ax, X_train, y_train, max_depth, feature_names, target_nam
         plane(node, bbox)
 
     x, y, z = X_train[:, 0], X_train[:, 1], y_train
-    ax.scatter(x, y, z, marker='o', alpha=.7, edgecolor=GREY, lw=.3, c=colors)#, c='#4575b4')
+    ax.scatter(x, y, z, marker='o', alpha=.7, edgecolor=GREY, lw=.3, c=colors)
 
     ax.set_xlabel(f"{feature_names[0]}", fontsize=fontsize, fontname="Arial", color=GREY)
     ax.set_ylabel(f"{feature_names[1]}", fontsize=fontsize, fontname="Arial", color=GREY)
@@ -936,11 +936,6 @@ def regr_split_viz(node: ShadowDecTreeNode,
     ax.tick_params(colors=GREY)
 
     feature_name = node.feature_name()
-    # ticklabelpad = plt.rcParams['xtick.major.pad']
-    # ax.annotate(f"{feature_name}",
-    #             xy=(.5, 0), xytext=(.5, -3*ticklabelpad), ha='center', va='top',
-    #             xycoords='axes fraction', textcoords='offset points',
-    #             fontsize = label_fontsize, fontname = "Arial", color = GREY)
 
     ax.set_xlabel(f"{feature_name}", fontsize=label_fontsize, fontname="Arial", color=GREY)
 
@@ -969,7 +964,7 @@ def regr_split_viz(node: ShadowDecTreeNode,
         xticks += [node.split()]
     ax.set_xticks(xticks)
 
-    ax.scatter(X_feature, y_train, s=5, c='#225ea8', alpha=.4)
+    ax.scatter(X_feature, y_train, s=5, c=BLUE, alpha=.4, lw=.3)
     left, right = node.split_samples()
     left = y_train[left]
     right = y_train[right]
@@ -990,11 +985,6 @@ def regr_split_viz(node: ShadowDecTreeNode,
         t = patches.Polygon(tria, facecolor=color)
         t.set_clip_on(False)
         ax.add_patch(t)
-
-        # ax.text(node.split(), 0,
-        #         f"{myround(node.split(),precision)}",
-        #         horizontalalignment='center',
-        #         fontsize=ticks_fontsize, color=GREY)
 
     wedge(ax, node.split(), color=WEDGE_COLOR)
 
@@ -1047,7 +1037,7 @@ def regr_leaf_viz(node : ShadowDecTreeNode,
     ax.set_xlim(0, 1)
     alpha = .25
 
-    ax.scatter(X, y, s=5, c='#225ea8', alpha=alpha)
+    ax.scatter(X, y, s=5, c='#225ea8', alpha=alpha, lw=.3)
     ax.plot([0,len(node.samples())],[m,m],'--', color=GREY, linewidth=1)
 
     plt.tight_layout()

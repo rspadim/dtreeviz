@@ -7,7 +7,7 @@ from dtreeviz.trees import *
 df_cars = pd.read_csv("data/cars.csv")
 X = df_cars.drop('MPG', axis=1)
 y = df_cars['MPG']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, y_train = X, y
 
 
 max_depth = 2
